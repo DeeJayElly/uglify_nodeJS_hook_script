@@ -6,8 +6,8 @@ var UglifyJS = require('uglify-js');
 var CleanCSS = require('clean-css');
 var ngAnnotate = require('ng-annotate');
 var cssMinifier = new CleanCSS({
-    noAdvanced: true, // disable advanced optimizations - selector & property merging, reduction, etc.
-    keepSpecialComments: 0 // remove all css comments ('*' to keep all, 1 to keep first comment only)
+    noAdvanced: true,
+    keepSpecialComments: 0
 });
 
 var rootDir = process.argv[2];
@@ -16,13 +16,12 @@ var platform = process.env.CORDOVA_PLATFORMS;
 var cliCommand = process.env.CORDOVA_CMDLINE;
 
 // hook configuration
-// var isRelease = true; // by default this hook is always enabled, see the line below on how to execute it only for release
 var isRelease = (cliCommand.indexOf('--release') > -1);
 var doUglify = (cliCommand.indexOf('--uglify') > -1);
 
-var recursiveFolderSearch = true; // set this to false to manually indicate the folders to process
+var recursiveFolderSearch = true;
 
-var foldersToProcess = [ // add other www folders in here if needed (ex. js/controllers)
+var foldersToProcess = [
     'dist_js',
     'dist_css'
 ];
@@ -80,20 +79,20 @@ function compress(file) {
             console.log('uglifying js file ' + file);
             var res = ngAnnotate(String(fs.readFileSync(file)), { add: true });
             result = UglifyJS.minify(res.src, {
-                compress: { // pass false here if you only want to minify (no obfuscate)
-                    drop_console: false, // remove console.* statements (log, warn, etc.)
+                compress: {
+                    drop_console: false,
                     keep_fnames: false,
                     keep_fargs: false
                 },
                 fromString: true
             });
-            fs.writeFileSync(file, result.code, 'utf8'); // overwrite the original unminified file
+            fs.writeFileSync(file, result.code, 'utf8');
             break;
         case '.css':
             console.log('minifying css file ' + file);
             var source = fs.readFileSync(file, 'utf8');
             result = cssMinifier.minify(source);
-            fs.writeFileSync(file, result.styles, 'utf8'); // overwrite the original unminified file
+            fs.writeFileSync(file, result.styles, 'utf8');
             break;
         default:
             console.log('encountered a ' + ext + ' file, not compressing it');
